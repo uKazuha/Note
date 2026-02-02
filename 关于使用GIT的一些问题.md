@@ -15,3 +15,13 @@ git clone 克隆地址(git@github.com:uKazuha/Code.git)
 本地git init初始化仓库后，在远端也创建一个仓库，注意，远端创建仓库时，不要勾选创建README.txt文件
 ```
 
+```
+准备工作完成后，通过git remote add添加远程仓库
+git remote add origin git@github.com:uKazuha/Note.git
+以上命令将该远端仓库命名为origin（标识符）
+
+接下来推送操作：
+git push -u origin main
+推送到origin远端的main分支
+```
+
