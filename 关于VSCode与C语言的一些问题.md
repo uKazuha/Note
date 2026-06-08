@@ -57,6 +57,16 @@ gcc [选项] [源文件] [选项] [输出文件]
 }
 ```
 
+**关键参数说明**
+
+* ` ${workspaceFolder}`：VSCode 的当前工作区根目录（固定变量，无需修改）；
+
+* `compilerPath`：必须指向你实际安装的`gcc.exe`（Windows）或`gcc`（Linux/Mac）路径，错误会导致智能提示失效；
+
+* `cStandard`：指定使用的 C 语言标准，建议选`c17`（主流兼容）。
+
+
+
 ## 2.task.json
 
 编译任务配置文件
@@ -93,5 +103,50 @@ gcc [选项] [源文件] [选项] [输出文件]
 }
 ```
 
+**关键参数说明**：
 
+- `-g`：必须添加！该参数让编译器生成调试信息，否则后续`launch.json`调试会失败；
+- `${file}`：当前编辑的`.c`文件（比如你打开的`test.c`）；
+- `${fileBasenameNoExtension}`：当前文件的 “文件名（不含后缀）”（比如`test.c`对应`test`）。
+
+
+
+## 3.launch.json
+
+**核心作用**：定义 “调试指令”，告诉 VSCode 如何调用调试器（如 gdb）运行编译好的可执行文件，支持断点、逐行调试等功能。
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "gcc.exe - 生成和调试活动文件",  // 调试配置名称（可自定义）
+            "type": "cppvsdbg",  // 调试器类型（Windows用cppvsdbg，Linux/Mac用lldb）
+            "request": "launch",  // 调试模式（launch=启动调试，attach=附加到已有进程）
+            "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",  // 要调试的可执行文件路径（对应tasks.json的输出）
+            "args": [],  // 传给程序的命令行参数（比如运行test.exe时传参数，可填["123","456"]）
+            "stopAtEntry": false,  // 是否在程序入口（main函数）处自动暂停（false=不暂停）
+            "cwd": "${fileDirname}",  // 调试工作目录
+            "environment": [],
+            "externalConsole": true,  // 是否弹出独立的终端窗口（true=弹出，方便输入输出；false=用VSCode内置终端）
+            "MIMode": "gdb",  // 调试器内核（MinGW用gdb）
+            "miDebuggerPath": "D:/MinGW/mingw64/bin/gdb.exe",  // gdb路径（替换为你的路径）
+            "setupCommands": [
+                {
+                    "description": "为gdb启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "C/C++: gcc.exe 生成活动文件"  // 调试前先执行的任务（必须和tasks.json的label一致）
+        }
+    ]
+}
+```
+
+**关键参数说明**：
+
+- `preLaunchTask`：必须和`tasks.json`中的`label`完全一致！否则调试时会提示 “找不到预启动任务”；
+- `externalConsole`：建议设为`true`，否则 VSCode 内置终端可能无法正常输入（比如`scanf`会失效）；
+- `miDebuggerPath`：指向 MinGW 的`gdb.exe`路径，错误会导致调试失败。
 
