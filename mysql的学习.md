@@ -247,9 +247,109 @@ where age = 20;
 
 
 
+## 五、高级数据过滤
+
+### 5.1 组合where子句
+
+* AND
+
+```sql
+select name,age,id from stu_info
+where id = 2 and age < 20;
+```
+
+* OR
+
+```sql
+select name,age,id from stu_info
+where id =2 or age < 20
+```
+
+AND的优先级更高，下面这种情况会导致，and 会先生效，结果为age<20且id=2的的信息，然后加上满足gender=男这一条件的信息
+
+```sql
+select name,gender,age,id from stu_info
+where gender = "男" or age < 20 and id = 2;
+```
+
+我们可以加括号来解决
+
+```sql
+select name,gender,age,id from stu_info
+where (gender = "男" or age < 20) and id = 2;
+```
 
 
 
+### 5.2 IN操作符
+
+```sql
+select name,age from stu_info
+where age in (19,20,21);
+```
+
+* IN操作符一般比一组OR操作符执行的更快一些
+* IN最大的优点是可以包含其他select语句
+
+### 5.3 NOT操作符
+
+仅一个作用，否定操作，放在关键字前，或后
+
+```sql
+create database if not exists [a];
+
+select name,age from stu_info
+where age not in (19,20,21);
+```
 
 
 
+## 六、使用通配符进行过滤
+
+### 6.1 like操作符
+
+1.通配符%
+
+%可以匹配任意字符任意次数
+
+注意：匹配不了null字段
+
+```sql
+select name from stu_info
+where name like 'fish%';
+
+-- 只能匹配文本字段，有时候一个文本字段容量有20位，但是实际只有10位，这个时候数据库会把后面10位用空格填充，即如下有时无法生效
+select name from stu_info
+where name like 'F%Y';	--本意是匹配以F开头，以Y结尾
+
+-- 要修改成下面这样
+select name from stu_info
+where name like 'F%Y%';
+```
+
+
+
+2.通配符下划线_
+
+只能匹配单个字符
+
+
+
+3.通配符方括号[]
+
+MySQL不支持，简单介绍用法
+
+```sql
+-- 匹配A或B开头的字段
+select name from stu_info
+where name like '[AB]%';
+
+-- 用脱字符^或NOT执行相反操作
+select name from stu_info
+where name like '[^AB]%';
+```
+
+### 6.2 通配符使用的注意事项
+
+* 其他操作符的优先级高于通配符
+* 确实需要用时，不要在开头就使用
