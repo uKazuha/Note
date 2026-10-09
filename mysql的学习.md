@@ -353,3 +353,64 @@ where name like '[^AB]%';
 
 * 其他操作符的优先级高于通配符
 * 确实需要用时，不要在开头就使用
+
+
+
+## 七、创建计算字段
+
+一句话，计算字段其实就是在原格式的字段上再加一些内容或格式进去
+
+### 7.1 拼接字段
+
+mysql需要用专用函数concat()，其他一些有用 + 或者 ||
+
+```sql
+select concat(name,'(',age,')') from stu_info;
+
+-- 结果示例	张三(20)
+-- 之前说过的填充，结果也可能是：张三        (20)
+-- 解决如下
+select concat(rtrim(name),'(',age,')') from stu_info;
+
+-- 利用 AS 关键字给拼接字段取别名
+select concat(rtrim(name),'(',age,')') as name_age from stu_info;
+```
+
+
+
+### 7.2 执行算数运算
+
+计算字段的另一常见用途是对检索出来的数据进行算数运算
+
+算数运算符有加减乘除
+
+比如，产看订单号为1001的商品总价
+
+```sql
+select id,quantity,price,
+quantity * price as expanded_price from orderItems
+where id = 1001;
+```
+
+
+
+## 八、使用函数处理数据
+
+由于大部分DBMS都有那么些功能相同，但是函数名和用法不一致的函数，所以在使用之前需考虑可移植性，如果非要用，写注释是一个很好的习惯
+
+接下来介绍几个函数
+
+1.文本处理函数
+
+![image-20261009131947845](E:\Note\mysql的学习.assets\image-20261009131947845.png)
+
+2.日期和时间处理函数
+
+* year()：顾名思义，取年份
+
+```sql
+select order_num from orders
+where year(order_date) = 2020;
+```
+
+![image-20261009132629018](E:\Note\mysql的学习.assets\image-20261009132629018.png)
